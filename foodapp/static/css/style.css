@@ -1,0 +1,56 @@
+/* static/css/style.css */
+body {
+    background-color: #f8f9fa;
+}
+.menu-img {
+    height: 150px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 5px; /* optional, for rounded corners */
+}
+.category-card {
+  height: 200px;   /* slightly smaller fixed height */
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+}
+
+.category-card img.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* keeps image aspect ratio, crops overflow */
+  display: block;
+}
+
+.card-img-overlay {
+  bottom: 0;
+  top: auto;
+  padding: 0;
+}
+
+.card-img-overlay h5 {
+  margin: 0;
+  padding: 8px 0;
+  background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  border-radius: 0 0 8px 8px;
+  width: 100%;
+}
+
+.placeholder-image {
+  background-color: #ddd;
+  height: 100%;
+  font-size: 1.25rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
