@@ -1,20 +1,20 @@
 from pathlib import Path
 import os
+from decouple import config
+import dj_database_url
 
-# Base directory of the project
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+&--u82b$omta+9j0^rpdyka6vf4ft%pa1$e%t&+t*5^%gco_7'
+# Secret key and debug from environment variables
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-unsafe-secret-key')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = ['*']  # For development. Replace '*' with domain name in production.
 
-ALLOWED_HOSTS = []
-
-# Application definition
+# Installed apps
 INSTALLED_APPS = [
-    'foodapp',  # your app
+    'foodapp',  # Your app name
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,8 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files on Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -33,18 +35,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Root URLs and WSGI
 ROOT_URLCONF = 'foodproject.urls'
+WSGI_APPLICATION = 'foodproject.wsgi.application'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Templates directory inside BASE_DIR/templates
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,  # Also looks for templates inside app/templates/
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # Required by admin & auth templates
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -52,22 +56,20 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'foodproject.wsgi.application'
-
-# Database config (SQLite)
+# Database (PostgreSQL for Render, fallback to SQLite locally)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
-# Password validation
+# Password validators
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -76,19 +78,21 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JS)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # global static folder
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Optional dev folder
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')    # Required by collectstatic
 
-# Media files (for uploaded images etc.)
+# WhiteNoise for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files (for user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Auth redirect URLs
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
 
-# Redirect URL for login (used by login_required decorator)
-LOGIN_URL = '/login/'        # Redirect here if not logged in
-LOGIN_REDIRECT_URL = '/'     # Default redirect after login
+# Default auto field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
